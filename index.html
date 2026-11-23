@@ -1198,13 +1198,49 @@ dialog::backdrop{
   }
 }
 
-/* V25: scroll-safe mobile layout — Home stays fixed, inner screens scroll */
-.screen:not(#home):not(#onboarding){overflow:hidden;}
-.screen:not(#home):not(#onboarding) .page{flex:1 1 auto;min-height:0;height:100%;overflow:hidden;}
-.scroll-area{flex:1 1 0 !important;min-height:0 !important;height:auto !important;max-height:none !important;overflow-y:auto !important;overflow-x:hidden !important;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior-y:contain;padding-bottom:120px;}
-.chat-area{flex:1 1 0 !important;min-height:0 !important;height:auto !important;overflow-y:auto !important;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior-y:contain;}
-#home .page{min-height:0;overflow:hidden}
-#home .home-scroll{min-height:0;overflow:hidden}
+/* V26: iPhone-safe scrolling — Home fixed, every inner screen gets a real scroll container */
+.screen:not(#home):not(#onboarding){
+  overflow:hidden !important;
+}
+.screen:not(#home):not(#onboarding) .page{
+  position:relative;
+  height:100% !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y;
+  padding-bottom:90px;
+}
+.screen:not(#home):not(#onboarding) .scroll-area{
+  flex:none !important;
+  min-height:0 !important;
+  height:auto !important;
+  max-height:none !important;
+  overflow:visible !important;
+  padding-bottom:120px;
+}
+.chat-area{
+  flex:1 1 auto !important;
+  min-height:220px !important;
+  height:auto !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y;
+  overscroll-behavior-y:contain;
+}
+#home .page{min-height:0 !important;overflow:hidden !important}
+#home .home-scroll{min-height:0 !important;overflow:hidden !important}
+.screen:not(#home):not(#onboarding) .bottom-nav{
+  position:fixed !important;
+  left:50% !important;
+  right:auto !important;
+  bottom:0 !important;
+  width:100% !important;
+  max-width:520px !important;
+  transform:translateX(-50%);
+}
 #home .envelopes{overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 #home .envelope{min-width:0}
 #home .envelope:nth-child(n+4){display:none}@media(max-height:720px){#home .home-scroll{padding-top:5px;padding-bottom:6px}#home .safe-card{padding:14px}#home .safe-number{font-size:30px}#home .insight{margin-top:6px;padding:9px 11px}#home .home-grid{margin-top:6px;gap:7px}#home .mini-card{min-height:68px;padding:10px}#home .section-head{margin-top:7px;margin-bottom:5px}#home .ask-card{margin-top:6px;padding:10px 12px}}@media(max-height:620px){#home .insight{display:none}#home .score-card{padding:8px}#home .goal-mini{padding:9px 11px}#home .page{padding-bottom:70px}#home .bottom-nav{height:70px}}
