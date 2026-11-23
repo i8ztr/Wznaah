@@ -1198,11 +1198,34 @@ dialog::backdrop{
   }
 }
 
-/* V26: iPhone-safe scrolling — Home fixed, every inner screen gets a real scroll container */
-.screen:not(#home):not(#onboarding){
+/* V28: lively micro-interactions and daily pulse */
+@keyframes wiznahFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes wiznahGlow{0%,100%{box-shadow:0 0 0 rgba(139,92,246,0)}50%{box-shadow:0 0 24px rgba(139,92,246,.16)}}
+@keyframes wiznahIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.wiz-pulse{margin-top:10px;padding:14px 15px;position:relative;overflow:hidden;animation:wiznahIn .35s ease both}
+.wiz-pulse::after{content:"";position:absolute;inset:-40px auto auto -30px;width:120px;height:120px;background:radial-gradient(circle,rgba(139,92,246,.18),transparent 68%);pointer-events:none}
+.wiz-pulse-top{display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:1}
+.wiz-pulse-title{font-size:14px;font-weight:900}
+.wiz-pulse-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.wiz-pulse-badge{width:42px;height:42px;border-radius:15px;background:rgba(139,92,246,.12);display:flex;align-items:center;justify-content:center;font-size:22px;animation:wiznahFloat 2.6s ease-in-out infinite}
+.wiz-pulse-main{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px;position:relative;z-index:1}
+.wiz-pulse-stat{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.05);border-radius:15px;padding:10px}
+.wiz-pulse-stat span{display:block;color:var(--muted);font-size:10px}
+.wiz-pulse-stat strong{display:block;font-size:17px;margin-top:3px}
+.wiz-pulse-message{margin-top:9px;padding:9px 10px;border-radius:13px;background:rgba(53,211,153,.07);color:#dffcf1;font-size:11px;line-height:1.6;position:relative;z-index:1}
+.wiz-pulse.warn .wiz-pulse-message{background:rgba(251,191,36,.08);color:#fff4cf}
+.wiz-pulse.bad .wiz-pulse-message{background:rgba(251,113,133,.08);color:#ffe1e6}
+.wiz-pulse.good{animation:wiznahIn .35s ease both,wiznahGlow 3s ease-in-out 1}
+#home .safe-card{animation:wiznahIn .35s ease both}
+#home .quick-actions-home .btn{transition:transform .16s ease,box-shadow .2s ease}
+#home .quick-actions-home .btn:active{transform:scale(.97)}
+
+/* V27: natural scrolling everywhere — onboarding and every app screen */
+.screen:not(#onboarding){
   overflow:hidden !important;
 }
-.screen:not(#home):not(#onboarding) .page{
+.screen:not(#onboarding) .page,
+.screen:not(#onboarding) .assistant-page{
   position:relative;
   height:100% !important;
   min-height:0 !important;
@@ -1210,29 +1233,34 @@ dialog::backdrop{
   overflow-x:hidden !important;
   -webkit-overflow-scrolling:touch;
   touch-action:pan-y;
-  padding-bottom:90px;
+  overscroll-behavior-y:contain;
+  padding-bottom:96px;
 }
-.screen:not(#home):not(#onboarding) .scroll-area{
+.screen:not(#onboarding) .scroll-area{
   flex:none !important;
-  min-height:0 !important;
   height:auto !important;
+  min-height:0 !important;
   max-height:none !important;
   overflow:visible !important;
   padding-bottom:120px;
 }
-.chat-area{
-  flex:1 1 auto !important;
-  min-height:220px !important;
-  height:auto !important;
+/* Home is intentionally scrollable too. */
+#home .page{
+  min-height:100% !important;
   overflow-y:auto !important;
   overflow-x:hidden !important;
   -webkit-overflow-scrolling:touch;
   touch-action:pan-y;
-  overscroll-behavior-y:contain;
+  padding-bottom:96px !important;
 }
-#home .page{min-height:0 !important;overflow:hidden !important}
-#home .home-scroll{min-height:0 !important;overflow:hidden !important}
-.screen:not(#home):not(#onboarding) .bottom-nav{
+#home .home-scroll{
+  flex:none !important;
+  min-height:auto !important;
+  overflow:visible !important;
+  padding-bottom:18px;
+}
+/* Keep bottom navigation visible while content moves underneath it. */
+.screen:not(#onboarding) .bottom-nav{
   position:fixed !important;
   left:50% !important;
   right:auto !important;
@@ -1240,11 +1268,16 @@ dialog::backdrop{
   width:100% !important;
   max-width:520px !important;
   transform:translateX(-50%);
+  z-index:50;
 }
-#home .envelopes{overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-#home .envelope{min-width:0}
-#home .envelope:nth-child(n+4){display:none}@media(max-height:720px){#home .home-scroll{padding-top:5px;padding-bottom:6px}#home .safe-card{padding:14px}#home .safe-number{font-size:30px}#home .insight{margin-top:6px;padding:9px 11px}#home .home-grid{margin-top:6px;gap:7px}#home .mini-card{min-height:68px;padding:10px}#home .section-head{margin-top:7px;margin-bottom:5px}#home .ask-card{margin-top:6px;padding:10px 12px}}@media(max-height:620px){#home .insight{display:none}#home .score-card{padding:8px}#home .goal-mini{padding:9px 11px}#home .page{padding-bottom:70px}#home .bottom-nav{height:70px}}
-.saving-wallet{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.saved-balance{font-size:24px;font-weight:950;margin-top:4px}
+#home .envelopes{overflow-x:auto;overflow-y:hidden;display:flex;gap:9px}
+#home .envelope{min-width:138px}
+#home .envelope:nth-child(n){display:block}
+/* Onboarding remains compact, but can scroll on small phones. */
+#onboarding{overflow-y:auto !important;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+#onboarding .onboard-box{margin:auto}
+/* Better tap feedback */
+button{touch-action:manipulation}
 </style>
 <style>
 
@@ -1327,7 +1360,7 @@ dialog::backdrop{
         <div class="greeting">
           <div>
             <div class="greeting-small" id="greetingSmall">مساء الخير</div>
-            <div class="greeting-name">وضعك المالي 👋</div>
+            <div class="greeting-name" id="greetingName">وضعك المالي 👋</div>
           </div>
 
           <button type="button" class="home-settings" data-action="settings">
@@ -1370,6 +1403,8 @@ dialog::backdrop{
           <button type="button" class="btn btn-primary" style="min-height:44px" data-action="quick-expense">＋ تسجيل مصروف</button>
           <button type="button" class="btn btn-secondary" style="min-height:44px" data-action="purchase-check">🛍️ أقدر أشتري؟</button>
         </div>
+
+        <div id="homePulse" class="card wiz-pulse good"></div>
 
         <div class="home-grid">
 
@@ -3659,6 +3694,27 @@ function deleteSaving(planId){
    RENDER HOME
 ========================================================= */
 
+function renderHomePulse(){
+  const el=document.getElementById("homePulse");
+  if(!el) return;
+  const safe=safeAvailable();
+  const daily=dailySafeSpend();
+  const today=new Date();
+  const todaySpent=state.transactions.filter(t=>t.type==="expense" && new Date(t.date).toDateString()===today.toDateString()).reduce((a,t)=>a+Number(t.amount||0),0);
+  const recent=state.transactions.filter(t=>t.type==="expense").sort((a,b)=>Number(b.date)-Number(a.date))[0];
+  let icon="✨", title="وِزنة معك اليوم", message="وضعك تحت السيطرة. خل مشترياتك الكبيرة تمر على وِزنة أول.";
+  let cls="good";
+  if(!state.salary){ icon="👋"; title="خلنا نبدأ صح"; message="أدخل راتبك أول، وبعدها أعطيك رقم الصرف الآمن يوميًا."; }
+  else if(safe<=0){ icon="🛑"; title="خفف الصرف اليوم"; message=`المتاح الآمن وصل للصفر. باقي ${daysUntilSalary()} يوم على الراتب، فخلنا نوقف المشتريات غير الضرورية.`; cls="bad"; }
+  else if(todaySpent>daily && daily>0){ icon="⚠️"; title="اليوم صرفت فوق المعدل"; message=`صرفك اليوم ${money(todaySpent)} ر.س، بينما الآمن تقريبًا ${money(daily)} ر.س. تقدر تعوّض بهدوء الأيام الجاية.`; cls="warn"; }
+  else if(state.savingsPlans.length){
+    const plan=state.savingsPlans[0]; const target=Number(plan.target||0); const saved=Number(plan.saved||0); const pct=target?Math.round(saved/target*100):0;
+    icon="🎯"; title=`هدفك ${plan.name}`; message=`وصلت ${pct}% من الهدف. كل ${money(Math.max(0,daily*0.2))} ر.س توفرها يوميًا تقربك منه.`;
+  } else if(recent){ icon="💜"; title="نبضة من وِزنة"; message=`آخر مصروف مسجل: ${recent.name||"مصروف"} — ${money(recent.amount)} ر.س. لا تخلي المصاريف الصغيرة تتراكم.`; }
+  el.className=`card wiz-pulse ${cls}`;
+  el.innerHTML=`<div class="wiz-pulse-top"><div><div class="wiz-pulse-title">${title}</div><div class="wiz-pulse-sub">تحديث حي حسب حركاتك الحالية</div></div><div class="wiz-pulse-badge">${icon}</div></div><div class="wiz-pulse-main"><div class="wiz-pulse-stat"><span>صرفك اليوم</span><strong>${money(todaySpent)} <small style="font-size:9px;color:var(--muted)">ر.س</small></strong></div><div class="wiz-pulse-stat"><span>الآمن لليوم</span><strong>${money(daily)} <small style="font-size:9px;color:var(--muted)">ر.س</small></strong></div></div><div class="wiz-pulse-message">${message}</div>`;
+}
+
 function renderHome(){
 
   const safeEl =
@@ -3691,6 +3747,8 @@ function renderHome(){
   document.getElementById("insightText").textContent =
     insight.text;
 
+  renderHomePulse();
+
   const score = financialScore();
 
   document.getElementById("scoreValue").textContent =
@@ -3722,6 +3780,13 @@ function renderHome(){
 
   document.getElementById("greetingSmall").textContent =
     greeting;
+  const greetingName=document.getElementById("greetingName");
+  if(greetingName){
+    const scoreNow=financialScore();
+    greetingName.textContent = state.salary
+      ? (scoreNow.score>=85 ? "أمورك المالية ماشية 👌" : scoreNow.score>=65 ? "خلنا نضبطها سوا 💜" : "خلنا ننقذ الشهر سوا 🛟")
+      : "وضعك المالي 👋";
+  }
 
   renderHomeBudgets();
   renderHomeGoal();
